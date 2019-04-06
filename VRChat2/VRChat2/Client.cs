@@ -2,18 +2,30 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using System.Net.Sockets;
+using System.Threading;
 using System.Net;
+using System.Net.Sockets;
 
 namespace VRChat2
 {
     class Client
     {
         /// <summary>
+        /// The threading part for the client
+        /// </summary>
+        public static ManualResetEvent connectDone;
+
+        /// <summary>
         /// This will be the client that connects to the server
         /// </summary>
-        TcpClient client;
+        Socket client;
+        public Socket ClientSocket { get { return client; } }
+
+        /// <summary>
+        /// The end point of the address
+        /// </summary>
+        EndPoint ep;
+        public EndPoint Ep { get { return ep; } }
 
         /// <summary>
         /// To handle receiving data
@@ -26,50 +38,65 @@ namespace VRChat2
         NetworkStream ns;
 
         /// <summary>
+        /// The number that is associated with the client
+        /// </summary>
+        int id;
+        public int ID { get { return id; } }
+
+        /// <summary>
         /// The Client that will be created off of the given address and the port
         /// </summary>
-        /// <param name="address"></param>
-        /// <param name="port"></param>
+        /// <param name="address">The address that the server is at</param>
+        /// <param name="port">The port the address is at, the parking space</param>
         public Client(IPAddress address, int port)
         {
-            client = new TcpClient(address.ToString(), port);
-            EstablishConnection();
+            client = new Socket(address.AddressFamily, SocketType.Stream, ProtocolType.IPv4);
         }
 
         /// <summary>
-        /// Used to send data to the server
+        /// Creating a reference to the actual client that exists out there somewhere in the world
         /// </summary>
-        public void SendString(string s, NetworkStream netstr)
+        /// <param name="client">The socket that the client is connected to</param>
+        /// <param name="clientNum">The id of that client so we can find it</param>
+        public Client(Socket socket, int id)
         {
-            Byte [] bytes = Encoding.ASCII.GetBytes(s);
-            netstr.Write(bytes, 0, bytes.Length);
+            this.client = socket;
+            this.id = id;
+        }
 
-            string bet;
-            int stuff;
-
-            while ((stuff = netstr.Read(bytes, 0, bytes.Length)) != 0)
-            {
-                bet = Encoding.ASCII.GetString(bytes, 0, stuff);
-                Console.WriteLine(bet);
-            }
+        public void Connect()
+        {
+            client.BeginAccept(new AsyncCallback(ConnectCallback), client);
+            connectDone.WaitOne();
         }
 
         /// <summary>
-        /// Used in a trycatch because we may not find the server
+        /// How we establish a connection with the server, a constant callback
         /// </summary>
-        public void EstablishConnection()
+        /// <param name="ar"></param>
+        private void ConnectCallback(IAsyncResult ar)
         {
             try
             {
-                ns = client.GetStream();
-                SendString("Connection", ns);
+                //Get the socket from the stateobject
+                Socket client = (Socket)ar.AsyncState;
+
+                //Complete the connection
+                client.EndConnect(ar);
+
+                //Set the thread to the current state
+                connectDone.Set();
+
             }
             catch (Exception e)
             {
-                Console.WriteLine("Server not found: " + e.Message);
+                Console.WriteLine("Error: " + e);
             }
         }
 
-
+        private static void Send(String data)
+        {
+            byte[] byteData = Encoding.ASCII.GetBytes(data);
+        }
     }
 }
