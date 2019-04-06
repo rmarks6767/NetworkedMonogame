@@ -1,6 +1,8 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using System.Net;
+using System.Net.Sockets;
 
 namespace VRChat2
 {
@@ -16,6 +18,22 @@ namespace VRChat2
         {
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
+            string ip = GetIpAddress();
+
+
+            if (ip == "129.21.50.210")
+            {
+                ip = "129.21.50.210";
+                System.Console.WriteLine("Creating a server");
+                Server server = new Server(IPAddress.Parse(ip), 8888);
+            }
+            else
+            {
+                ip = "129.21.50.210";
+                System.Console.WriteLine("Creating a client");
+                Client client = new Client(IPAddress.Parse(ip), 8888);
+            }
+
         }
 
         /// <summary>
@@ -78,6 +96,22 @@ namespace VRChat2
             // TODO: Add your drawing code here
 
             base.Draw(gameTime);
+        }
+
+
+        protected string GetIpAddress()
+        {
+            var host = Dns.GetHostEntry(Dns.GetHostName());
+
+            foreach(var ip in host.AddressList)
+            {
+                if (ip.AddressFamily == AddressFamily.InterNetwork)
+                {
+                    return ip.ToString();
+                }
+            }
+
+            return "oh fug";
         }
     }
 }
