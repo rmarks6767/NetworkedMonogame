@@ -3,9 +3,15 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System.Net;
 using System.Net.Sockets;
+using System.Collections.Generic;
 
 namespace VRChat2
 {
+    enum Command{
+        MoveMe,//Client => Server (newX,newY)
+        MoveYou,// Server => Client (newX,newY,id)
+        MoveOther, // Server => Client (newX,newY,id)
+    }
     /// <summary>
     /// This is the main type for your game.
     /// </summary>
@@ -13,6 +19,16 @@ namespace VRChat2
     {
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
+        
+        /// <summary>
+        /// List of drawn entities
+        /// </summary>
+        static public List<DrawnEnt> Ents;
+        
+        /// <summary>
+        /// This Client's player
+        /// </summary>
+        static public DrawnEnt ply;
 
         public Game1()
         {
@@ -45,7 +61,7 @@ namespace VRChat2
         protected override void Initialize()
         {
             // TODO: Add your initialization logic here
-
+            Ents = new List<DrawnEnt>();
             base.Initialize();
         }
 
@@ -97,6 +113,12 @@ namespace VRChat2
 
             // TODO: Add your drawing code here
 
+            spriteBatch.Begin(SpriteSortMode.BackToFront, null);
+            foreach(DrawnEnt ent in Ents)
+            {
+                ent.Draw(spriteBatch);
+            }
+            spriteBatch.End();
             base.Draw(gameTime);
         }
 
