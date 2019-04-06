@@ -54,12 +54,25 @@ namespace VRChat2
         public int ID { get { return id; } }
 
         /// <summary>
+        /// The current address we have to connect to
+        /// </summary>
+        IPAddress address;
+
+        /// <summary>
+        /// The port at which we do that connecting
+        /// </summary>
+        int port;
+
+        /// <summary>
         /// The Client that will be created off of the given address and the port
         /// </summary>
         /// <param name="address">The address that the server is at</param>
         /// <param name="port">The port the address is at, the parking space</param>
         public Client(IPAddress address, int port)
         {
+            this.address = address;
+            this.port = port;
+
             connectDone = new ManualResetEvent(false);
             receiveDone = new ManualResetEvent(false);
             sendDone = new ManualResetEvent(false);
@@ -89,7 +102,7 @@ namespace VRChat2
 
         public void Connect()
         {
-            client.BeginAccept(new AsyncCallback(ConnectCallback), client);
+            client.BeginConnect(address, port, new AsyncCallback(ConnectCallback), client);
             connectDone.WaitOne();
         }
 
