@@ -78,14 +78,7 @@ namespace VRChat2
             sendDone = new ManualResetEvent(false);
 
             client = new Socket(address.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-            //Make an endpoint based on the address and port 
-            IPEndPoint endpoint = new IPEndPoint(IPAddress.Any, port);
-
-            //Bind that Ip and port to the server 
-            client.Bind(endpoint);
-
-            //Start listening for any connections to the server
-            client.Listen(port);
+            
             Connect();
         }
 
