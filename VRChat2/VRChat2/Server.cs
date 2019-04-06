@@ -57,33 +57,29 @@ namespace VRChat2
                 {
                     Console.WriteLine("Damn connect already...");
 
-                    TcpClient client = server.AcceptTcpClient();
+                    AddClients();
 
-                    if (!clients.Contains(client))
+                    foreach (TcpClient client in clients)
                     {
-                        clients.Add(client);
-                        Console.WriteLine("Client added to the list of clients");
-                    }
+                        NetworkStream ns = client.GetStream();
 
+                        int i;
+                        // Loop to receive all the data sent by the client.
+                        while ((i = ns.Read(bytes, 0, bytes.Length)) != 0)
+                        {
+                            // Translate data bytes to a ASCII string.
+                            data = Encoding.ASCII.GetString(bytes, 0, i);
+                            Console.WriteLine("Received: {0}", data);
 
-                    NetworkStream ns = client.GetStream();
+                            // Process the data sent by the client.
+                            data = data.ToUpper();
 
-                    int i;
-                    // Loop to receive all the data sent by the client.
-                    while((i = ns.Read(bytes, 0, bytes.Length)) != 0)
-                    {
-                        // Translate data bytes to a ASCII string.
-                        data = Encoding.ASCII.GetString(bytes, 0, i);
-                        Console.WriteLine("Received: {0}", data);
+                            byte[] msg = Encoding.ASCII.GetBytes(data);
 
-                        // Process the data sent by the client.
-                        data = data.ToUpper();
-
-                        byte[] msg = Encoding.ASCII.GetBytes(data);
-
-                        // Send back a response.
-                        ns.Write(msg, 0, msg.Length);
-                        Console.WriteLine("Sent: {0}", data);
+                            // Send back a response.
+                            ns.Write(msg, 0, msg.Length);
+                            Console.WriteLine("Sent: {0}", data);
+                        }
                     }
                 }
             }
@@ -91,6 +87,25 @@ namespace VRChat2
             {
                 Console.WriteLine("OOF: " + e.Message);
             }
+        }
+
+        public void AddClients()
+        {
+            try
+            {
+                TcpClient client = server.AcceptTcpClient();
+
+                if (!clients.Contains(client))
+                {
+                    clients.Add(client);
+                    Console.WriteLine("Client added to the list of clients");
+                }
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine("Error right here: " + e.Message);
+            }
+            
         }
     }
 }
