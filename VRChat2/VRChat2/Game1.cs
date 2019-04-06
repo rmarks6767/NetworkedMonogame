@@ -7,10 +7,18 @@ using System.Collections.Generic;
 
 namespace VRChat2
 {
-    enum Command{
+    public enum Command
+    {
         MoveMe,//Client => Server (newX,newY)
         MoveYou,// Server => Client (newX,newY,id)
         MoveOther, // Server => Client (newX,newY,id)
+    }
+
+    public enum Assets
+    {
+        circle,
+        triangle,
+        square,
     }
     /// <summary>
     /// This is the main type for your game.
@@ -19,6 +27,11 @@ namespace VRChat2
     {
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
+
+        /// <summary>
+        /// The relational database of textures
+        /// </summary>
+        static public Dictionary<Assets, Texture2D> assestsDict;
         
         /// <summary>
         /// List of drawn entities
@@ -73,6 +86,13 @@ namespace VRChat2
         {
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
+            assestsDict = new Dictionary<Assets, Texture2D>
+            {
+                { Assets.circle, Content.Load<Texture2D>("WhiteCircle") },
+                { Assets.square, Content.Load<Texture2D>("WhiteSquare") },
+                { Assets.triangle, Content.Load<Texture2D>("WhiteTriangle") }
+            };
+
 
             // TODO: use this.Content to load your game content here
         }
