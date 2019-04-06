@@ -41,11 +41,6 @@ namespace VRChat2
         Byte[] bytes;
 
         /// <summary>
-        /// 
-        /// </summary>
-        NetworkStream ns;
-
-        /// <summary>
         /// The number of clients connected to the server
         /// </summary>
         int globalNextId;
@@ -105,7 +100,7 @@ namespace VRChat2
                     allDone.Reset();
 
                     //Open up the server to accept callbacks using the AcceptCallback function
-                    Console.WriteLine("Damn connect already...");
+                    Console.WriteLine("Awaiting connection...");
                     server.BeginAccept(new AsyncCallback(AcceptCallback), server);
 
                     //make the async thing wait
@@ -125,19 +120,28 @@ namespace VRChat2
         /// <param name="ar"></param>
         public void AcceptCallback(IAsyncResult ar)
         {
+            //Get the socket that handles the client request
+            Socket listener = (Socket)ar.AsyncState;
+            Socket handler = listener.EndAccept(ar);
+
             try
             {
                 //tell the main thread to start again
                 allDone.Set();
+                              
+                // We are now going to add the client connections to a list and create players for them if they don't already have a connection, we
+                // will also see if they are disconnected or not
 
-                //Get the socket that handles the client request
-                Socket listener = (Socket)ar.AsyncState;
-                Socket handler = listener.EndAccept(ar);
-
-                clients.Add(new Client(listener, globalNextId));
-                globalNextId++;
-                Console.WriteLine("Client {0} connected", clients[clients.Count - 1]);
-
+                if (!clients.Exists(c => c.ClientSocket == listener))
+                {
+                    clients.Add(new Client(listener, globalNextId));
+                    globalNextId++;
+                    Console.WriteLine("Client {0} connected", clients[clients.Count - 1].ID);
+                }
+                else
+                {
+                    CheckConnection(listener);
+                }
                 //Create the state object
                 StateObject state = new StateObject();
                 state.workSocket = handler;
@@ -146,10 +150,16 @@ namespace VRChat2
             catch(Exception e)
             {
                 Console.WriteLine("Error: " + e.Message);
+                RemoveClient(listener);
             }
             
         }
 
+        /// <summary>
+        /// Reads what the client says back to the server, this will handle what client sent stuff and 
+        /// what player to move in corespondance to such a thing
+        /// </summary>
+        /// <param name="ar"></param>
         public void ReadCallback(IAsyncResult ar)
         {
             try
@@ -182,85 +192,55 @@ namespace VRChat2
             }
             
         }
-    }
-}
 
+        /// <summary>
+        /// Used for sending data back to the client has connected
+        /// </summary>
+        /// <param name="ar"></param>
+        public void Send(IAsyncResult ar)
+        {
+            byte[] data = GetClientDataToSend();
+            server.BeginSend(data, 0, data.Length, SocketFlags.None, new AsyncCallback(SendCallback), server);
+        }
 
-
-
-
-
-
-/* Client client = AddClients();
-                    NetworkStream ns = client.TClient.GetStream();
-
-                    int i;
-                    // Loop to receive all the data sent by the client.
-                    while ((i = ns.Read(bytes, 0, bytes.Length)) != 0)
-                    {
-                        // Translate data bytes to a ASCII string.
-                        data = Encoding.ASCII.GetString(bytes, 0, i);
-                        Console.WriteLine("Received: {0}", data);
-
-                        byte[] msg = Encoding.ASCII.GetBytes("Hello connection: " + client.ID);
-
-                        // Send back a response.
-                        ns.Write(msg, 0, msg.Length);
-                        Console.WriteLine("Sent: Hello connection: {0}", client.ID);
-                        break;
-                    }
-                    Console.WriteLine("REEEEEE");
-                    client.TClient.Close();
-                    ns.Close();
-
-    public Client AddClients()
+        public void SendCallback(IAsyncResult ar)
         {
             try
             {
-                //Listening for any new connections
-                TcpClient client = server.AcceptTcpClient();
 
-                //Checking to see if that connection already exists in the list of connections
-                if (clients.Count > 0)
-                {
-                    for (int i = 0; i < clients.Count; i++)
-                    {
-                        if (clients[i].TClient == client)
-                        {
-  
-                            return clients[i];
-                        }
-                    }
-                    clients.Add(new Client(client, clients.Count + 1));
-                    Console.WriteLine("Client added to the list of clients");
-                    return clients[clients.Count - 1];
-                }
-                else
-                {
-                    clients.Add(new Client(client, clients.Count + 1));
-                    Console.WriteLine("Client added to the list of clients");
-                    return clients[clients.Count - 1];
-                }
             }
             catch(Exception e)
             {
-                Console.WriteLine("Error right here: " + e.Message);
+                Console.WriteLine("SendCallback Error: " + e.Message);
             }
-            return null;
         }
 
-        public void RemoveDisconnectedClients()
+        /// <summary>
+        /// Will check the connection and if it is disconnected it will remove it from the list
+        /// </summary>
+        /// <param name="client">The current client in question</param>
+        public void CheckConnection(Socket client)
         {
-            for (int i = 0; i < clients.Count; i++)
+            if (!client.Connected)
             {
-                if (!clients[i].TClient.Connected)
-                {
-                    Console.WriteLine("Removing client with id: " + clients[i].ID);
-                    clients.Remove(clients[i]);
-                }
+                RemoveClient(client);
             }
+        }
+
+        /// <summary>
+        /// Removes the client from the list, deleting the player as well
+        /// </summary>
+        /// <param name="client">The current client in question</param>
+        public void RemoveClient(Socket client)
+        {
+            Client current = clients.Find(c => c.ClientSocket == client);
+            Console.WriteLine("Client with id:{0} removed, it is disconnected", current.ID);
+            clients.Remove(current);
+        }
+
+        public byte[] GetClientDataToSend()
+        {
+            return null;
         }
     }
 }
-*/
-  
