@@ -37,6 +37,7 @@ namespace VRChat2
         /// <param name="port"></param>
         public Server(IPAddress address, int port)
         {
+            clients = new List<TcpClient>();
             bytes = new byte[256];
             server = new TcpListener(address, port);
             server.Start();

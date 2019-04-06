@@ -41,8 +41,17 @@ namespace VRChat2
         /// </summary>
         public void SendString(string s, NetworkStream netstr)
         {
-            Byte [] data = Encoding.ASCII.GetBytes(s);
-            netstr.Write(data, 0, data.Length);
+            Byte [] bytes = Encoding.ASCII.GetBytes(s);
+            netstr.Write(bytes, 0, bytes.Length);
+
+            string bet;
+            int stuff;
+
+            while ((stuff = netstr.Read(bytes, 0, bytes.Length)) != 0)
+            {
+                bet = Encoding.ASCII.GetString(bytes, 0, stuff);
+                Console.WriteLine(bet);
+            }
         }
 
         /// <summary>
