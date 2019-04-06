@@ -60,7 +60,20 @@ namespace VRChat2
         /// <param name="port">The port the address is at, the parking space</param>
         public Client(IPAddress address, int port)
         {
-            client = new Socket(address.AddressFamily, SocketType.Stream, ProtocolType.IPv4);
+            connectDone = new ManualResetEvent(false);
+            receiveDone = new ManualResetEvent(false);
+            sendDone = new ManualResetEvent(false);
+
+            client = new Socket(address.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+            //Make an endpoint based on the address and port 
+            IPEndPoint endpoint = new IPEndPoint(IPAddress.Any, port);
+
+            //Bind that Ip and port to the server 
+            client.Bind(endpoint);
+
+            //Start listening for any connections to the server
+            client.Listen(port);
+            Connect();
         }
 
         /// <summary>
@@ -89,7 +102,7 @@ namespace VRChat2
             try
             {
                 //Get the socket from the stateobject
-                Socket client = (Socket)ar.AsyncState;
+                client = (Socket)ar.AsyncState;
 
                 //Complete the connection
                 client.EndConnect(ar);
@@ -127,7 +140,7 @@ namespace VRChat2
             try
             {
                 //retrieve the socket from the stateobject
-                Socket client = (Socket)ar.AsyncState;
+                client = (Socket)ar.AsyncState;
 
                 //Complete sending the data to the remote device
                 int bytesSent = client.EndSend(ar);
@@ -167,7 +180,7 @@ namespace VRChat2
             {
                 //Retrieve the state object 
                 StateObject state = (StateObject)ar.AsyncState;
-                Socket client = state.workSocket;
+                client = state.workSocket;
 
                 //Read the data from the remote device
                 int bytesRead = client.EndReceive(ar);
