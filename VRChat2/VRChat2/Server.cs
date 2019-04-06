@@ -68,6 +68,7 @@ namespace VRChat2
 
             //A list of clients that have connected to the server
             clients = new List<Client>();
+            globalNextId = 0;
 
             //The data that can be sent back and forth between the server and the client
             bytes = new byte[256];
@@ -122,7 +123,7 @@ namespace VRChat2
         /// Sets the server to be something that can receive client requests asyncronously
         /// </summary>
         /// <param name="ar"></param>
-        public static void AcceptCallback(IAsyncResult ar)
+        public void AcceptCallback(IAsyncResult ar)
         {
             try
             {
@@ -132,6 +133,10 @@ namespace VRChat2
                 //Get the socket that handles the client request
                 Socket listener = (Socket)ar.AsyncState;
                 Socket handler = listener.EndAccept(ar);
+
+                clients.Add(new Client(listener, globalNextId));
+                globalNextId++;
+                Console.WriteLine("Client {0} connected", clients[clients.Count - 1]);
 
                 //Create the state object
                 StateObject state = new StateObject();
@@ -145,7 +150,7 @@ namespace VRChat2
             
         }
 
-        public static void ReadCallback(IAsyncResult ar)
+        public void ReadCallback(IAsyncResult ar)
         {
             try
             {

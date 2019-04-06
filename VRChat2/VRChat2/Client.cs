@@ -127,7 +127,7 @@ namespace VRChat2
         /// Now we can send data back and forth between two endpoints
         /// </summary>
         /// <param name="data"></param>
-        private void Send(String data)
+        public void Send(String data)
         {
             //Turn the string data into bytes
             byte[] byteData = new byte[10];//Encoding. .GetBytes(data);
