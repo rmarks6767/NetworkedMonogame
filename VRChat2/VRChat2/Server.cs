@@ -335,16 +335,25 @@ namespace VRChat2
                     }
                     break;
                 case Command.AddPlayer: // (Command, X, Y, ID, Sprite, Color)
-                    data += (int)Command.AddPlayer;
-                    data += (client.Ply.CollisionBox.X);
+                    data += (int)Command.SendingClientInfo;
                     data += ",";
-                    data += (client.Ply.CollisionBox.Y);
-                    data += ",";
-                    data += (client.ID);
-                    data += ",";
-                    data += (int)(client.Ply.Sprite);
-                    data += ",";
-                    data += (client.Ply.Color);
+                        data += (client.Ply.CollisionBox.X);
+                        data += ":";
+                        data += (client.Ply.CollisionBox.Y);
+                        data += ":";
+                        data += (client.Ply.CollisionBox.Width);
+                        data += ":";
+                        data += (client.Ply.CollisionBox.Height);
+                        data += ":";
+                        data += (client.ID);
+                        data += ":";
+                        data += (int)(client.Ply.Sprite);
+                        data += ":";
+                        data += (client.Ply.Color.R);
+                        data += ":";
+                        data += (client.Ply.Color.G);
+                        data += ":";
+                        data += (client.Ply.Color.B);
                     break;
                 case Command.RemovePlayer: // (Command, ID)
                     data += (int)Command.RemovePlayer;

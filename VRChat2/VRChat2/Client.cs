@@ -152,8 +152,6 @@ namespace VRChat2
                     Console.WriteLine(bytesRead);
 
                     Game1.CurrentCommand = Encoding.ASCII.GetString(state.buffer, 0, bytesRead);
-                    Console.WriteLine(Game1.CurrentCommand);
-
                     receiveDone.Set();
                 }
             }
