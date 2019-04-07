@@ -138,6 +138,13 @@ namespace VRChat2
                     globalNextId++;
                     Console.WriteLine("Client {0} connected", clients[clients.Count - 1].ID);
                     Send(Command.SendingClientInfo, clients[clients.Count - 1], handler);
+                    for (int i = 0; i < clients.Count; i++)
+                    {
+                        if(!(clients[i].ClientSocket == handler))
+                        {
+                            Send(Command.AddPlayer, clients[clients.Count - 1], clients[i].ClientSocket);
+                        }
+                    }
                 }
                 else
                 {
@@ -187,7 +194,7 @@ namespace VRChat2
                         Console.WriteLine("Read {0} from the socket", content);
                     }
                 }
-                handler.Close();
+                handler.EndReceive(ar);
 
             }
             catch(Exception e)
@@ -221,7 +228,6 @@ namespace VRChat2
                 int bytesSent = handler.EndSend(ar);
                 Console.WriteLine("Sent {0} bytes to the client", bytesSent);
 
-                handler.Shutdown(SocketShutdown.Both);
                 //handler.Close();
             }
             catch(Exception e)
