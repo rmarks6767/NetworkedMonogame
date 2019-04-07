@@ -235,7 +235,7 @@ namespace VRChat2
                 //PARSE DATA SENT BY THE SERVER FOR EASY READING LATER
                 if (command != "" && command != null)
                 {
-                    System.Console.WriteLine(command);
+                    System.Console.WriteLine("Received command: " + command);
                     string[] tempCmdArgs = command.Split(',');
                     cmdHead = (Command)int.Parse(tempCmdArgs[0]);
 
@@ -367,16 +367,20 @@ namespace VRChat2
                         if (Keyboard.GetState().IsKeyDown(Keys.A))
                         {
                             MyClient.Send(string.Format(
-                                "{0},{1},{2},{3},{4}",
-                                Command.MoveMe, ply.Position.X - UniversalSpeed,
-                                ply.Position.Y,ply.Position.Width,
+                                "{0},{1},{2},{3},{4}{5}",
+                                Command.MoveMe,
+                                MyClient.ID,
+                                ply.Position.X - UniversalSpeed,
+                                ply.Position.Y,
+                                ply.Position.Width,
                                 ply.Position.Height));
                         }
                         else if (Keyboard.GetState().IsKeyDown(Keys.D))
                         {
                             MyClient.Send(string.Format(
-                                "{0},{1},{2},{3},{4}",
+                                "{0},{1},{2},{3},{4}{5}",
                                 Command.MoveMe,
+                                MyClient.ID,
                                 ply.Position.X + UniversalSpeed,
                                 ply.Position.Y,
                                 ply.Position.Width,
@@ -385,8 +389,9 @@ namespace VRChat2
                         else if (Keyboard.GetState().IsKeyDown(Keys.W))
                         {
                             MyClient.Send(string.Format(
-                                "{0},{1},{2},{3},{4}",
+                                "{0},{1},{2},{3},{4},{5}",
                                 Command.MoveMe,
+                                MyClient.ID,
                                 ply.Position.X,
                                 ply.Position.Y - UniversalSpeed,
                                 ply.Position.Width,
@@ -395,7 +400,8 @@ namespace VRChat2
                         else if (Keyboard.GetState().IsKeyDown(Keys.S))
                         {
                             MyClient.Send(string.Format(
-                                "{0},{1},{2},{3},{4}",
+                                "{0},{1},{2},{3},{4},{5}",
+                                MyClient.ID,
                                 Command.MoveMe,
                                 ply.Position.X,
                                 ply.Position.Y + UniversalSpeed,
