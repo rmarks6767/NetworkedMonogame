@@ -195,34 +195,45 @@ namespace VRChat2
                     //Keep reading until there is no more data
                     handler.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0, new AsyncCallback(ReadCallback), state);
                 }
-                    //As long as that above string has data we will process it
-                    if (state.sb.Length > 1)
-                    {
-                        //get the stuff from the state
-                        string content = state.sb.ToString();
+                //As long as that above string has data we will process it
+                if (state.sb.Length > 1)
+                {
+                    //get the stuff from the state
+                    string content = state.sb.ToString();
 
-                        //Output what we recieved
-                        Console.WriteLine(content);
+                    //Output what we recieved
+                    Console.WriteLine(content);
 
-                        //Split that output to then update the data we have locally
-                        string[] tempCmdArgs = content.Split(',');
-                        int cmdHead = int.Parse(tempCmdArgs[0]);
+                    //Split that output to then update the data we have locally
+                    string[] tempCmdArgs = content.Split(',');
+                    int cmdHead = int.Parse(tempCmdArgs[0]);
 
-                        //Find the client that has that given id
-                        Client client = clients.Find(c => c.ID == int.Parse(tempCmdArgs[1]));
+                    //Find the client that has that given id
+                    Client client = clients.Find(c => c.ID == int.Parse(tempCmdArgs[1]));
 
-                        //Update that player's collision box
-                        client.Ply.CollisionBox = new Rectangle(
-                            int.Parse(tempCmdArgs[2]),
-                            int.Parse(tempCmdArgs[3]),
-                            int.Parse(tempCmdArgs[4]),
-                            int.Parse(tempCmdArgs[5]));
+                    Console.WriteLine("Client Requesting to Move: " + client.ID);
 
-                        //send that given data to the clients to update them with the new position
-                        Send((Command)cmdHead, client, handler, null);
+                    Console.WriteLine("{0},{1},{2},{3}", client.Ply.CollisionBox.X, client.Ply.CollisionBox.Y, client.Ply.CollisionBox.Width, client.Ply.CollisionBox.Height);
+                    Console.WriteLine("{0},{1},{2},{3}", 
+                    int.Parse(tempCmdArgs[2]),
+                        int.Parse(tempCmdArgs[3]),
+                        int.Parse(tempCmdArgs[4]),
+                        int.Parse(tempCmdArgs[5]));    
+
+                    //Update that player's collision box
+                    client.Ply.CollisionBox = new Rectangle(
+                        int.Parse(tempCmdArgs[2]),
+                        int.Parse(tempCmdArgs[3]),
+                        int.Parse(tempCmdArgs[4]),
+                        int.Parse(tempCmdArgs[5]));
+
+                    Console.WriteLine("{0},{1},{2},{3}", client.Ply.CollisionBox.X, client.Ply.CollisionBox.Y, client.Ply.CollisionBox.Width, client.Ply.CollisionBox.Height);
+
+                    //send that given data to the clients to update them with the new position
+                    Send((Command)cmdHead, client, handler, null);
                         Console.WriteLine("Read {0} from the socket", content);
-                    }
-
+                        state.sb.Clear();
+                }
             }
             catch(SocketException e)
             {
@@ -242,8 +253,26 @@ namespace VRChat2
             try
             {
                 Console.WriteLine("Now we're waiting at the Send");
-                byte[] sendData = GetClientDataToSend(command, client, destroy);
-                handler.BeginSend(sendData, 0, sendData.Length, SocketFlags.None, new AsyncCallback(SendCallback), handler);
+                if (command == Command.MoveMe)
+                {
+                    for (int i = 0; i < clients.Count; i++)
+                    {
+                        if (!(clients[i].ClientSocket == client.ClientSocket))
+                        {
+                            Send(Command.MoveOther, client, clients[i].ClientSocket, null);
+                        }
+                        else
+                        {
+                            Send(Command.MoveYou, client, client.ClientSocket, null);
+                        }
+                    }
+                }
+                else
+                {
+                    byte[] sendData = GetClientDataToSend(command, client, destroy);
+                    handler.BeginSend(sendData, 0, sendData.Length, SocketFlags.None, new AsyncCallback(SendCallback), handler);
+                }
+
             }
             catch(Exception e)
             {
@@ -341,22 +370,7 @@ namespace VRChat2
             switch (command)
             {
                 case Command.MoveMe: // (Command, ID, X, Y)
-                    data += (int)Command.MoveMe;
-                    data += ",";
-                    data += client.Ply.CollisionBox.X;
-                    data += ",";
-                    data += client.Ply.CollisionBox.Y;
-                    for (int i = 0; i < clients.Count; i++)
-                    {
-                        if (!(clients[i].ClientSocket == client.ClientSocket))
-                        {
-                            Send(Command.MoveOther, clients[clients.Count - 1], clients[i].ClientSocket, null);
-                        }
-                        else
-                        {
-                            Send(Command.MoveYou, clients[clients.Count - 1], clients[i].ClientSocket, null);
-                        }
-                    }
+                    
                     break;
                 case Command.MoveOther: // (Command, X, Y, ID)
                     data += (int)Command.MoveOther;
@@ -366,6 +380,7 @@ namespace VRChat2
                     data += client.Ply.CollisionBox.Y;
                     data += ",";
                     data += client.ID;
+                    Console.WriteLine("Move Other ID: " + client.ID);
                     break;
                 case Command.MoveYou: // (Command, X, Y, ID)
                     data += (int)Command.MoveYou;
@@ -375,11 +390,13 @@ namespace VRChat2
                     data += client.Ply.CollisionBox.Y;
                     data += ",";
                     data += client.ID;
-                    
+                    Console.WriteLine("Move You ID: " + client.ID);
                     break;
                 case Command.SendingClientInfo: // (Command, X:Y:Sprite:Color:ID, X:Y:Sprite:Color:ID, X:Y:Sprite:Color:ID...)
                     data += (int)Command.SendingClientInfo;
                     data += ",";
+                    data += client.ID;
+                    data += ',';
                     for (int i = 0; i < clients.Count; i++)
                     {
                         data += (clients[i].Ply.CollisionBox.X);
@@ -416,24 +433,24 @@ namespace VRChat2
                     break;
                 case Command.AddPlayer: // (Command, X, Y, ID, Sprite, Color)
                     data += (int)Command.SendingClientInfo;
-                    data += ",";
-                        data += (client.Ply.CollisionBox.X);
-                        data += ":";
-                        data += (client.Ply.CollisionBox.Y);
-                        data += ":";
-                        data += (client.Ply.CollisionBox.Width);
-                        data += ":";
-                        data += (client.Ply.CollisionBox.Height);
-                        data += ":";
-                        data += (client.ID);
-                        data += ":";
-                        data += (int)(client.Ply.Sprite);
-                        data += ":";
-                        data += (client.Ply.Color.R);
-                        data += ":";
-                        data += (client.Ply.Color.G);
-                        data += ":";
-                        data += (client.Ply.Color.B);
+                    data += ',';
+                    data += (client.Ply.CollisionBox.X);
+                    data += ":";
+                    data += (client.Ply.CollisionBox.Y);
+                    data += ":";
+                    data += (client.Ply.CollisionBox.Width);
+                    data += ":";
+                    data += (client.Ply.CollisionBox.Height);
+                    data += ":";
+                    data += (client.ID);
+                    data += ":";
+                    data += (int)(client.Ply.Sprite);
+                    data += ":";
+                    data += (client.Ply.Color.R);
+                    data += ":";
+                    data += (client.Ply.Color.G);
+                    data += ":";
+                    data += (client.Ply.Color.B);
                     break;
                 case Command.RemovePlayer: // (Command, ID)
                     data += (int)Command.RemovePlayer;

@@ -77,6 +77,7 @@ namespace VRChat2
 
             this.client = socket;
             this.id = id;
+            Console.WriteLine("Client Created with id:" + id);
             ply = new Player(new Rectangle(rng.Next(0, 200), rng.Next(0, 200), 50, 50), Assets.circle, Color.Black);
 
         }
