@@ -473,13 +473,8 @@ namespace VRChat2
                 if (!AlreadyHaveID(ent.Id))
                 {
                     Ents.Add(ent);
+                    MyClient.Ply = Ents[Ents.Count - 1];
                 }
-                
-                //if(ent.Id == MyClient.ID)
-                //{
-                   // ply = ent;
-                //}
-
             }
 
             bool AlreadyHaveID(int id)
