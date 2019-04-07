@@ -460,7 +460,7 @@ namespace VRChat2
 
         void GetClientInfo(List<SendingClientInfo> clientInfo)
         {
-            System.Console.WriteLine("Got data");
+            System.Console.WriteLine("Server sent us new player data");
             gameState = GameState.playing;
             foreach (SendingClientInfo s in clientInfo)
             {
@@ -470,13 +470,31 @@ namespace VRChat2
                         s.color,
                         s.id
                         );
-                Ents.Add(ent);
+                if (!AlreadyHaveID(ent.Id))
+                {
+                    Ents.Add(ent);
+                }
+                
+                
                     
                 if(ent.Id == MyClient.ID)
                 {
                     ply = ent;
                 }
 
+            }
+
+            bool AlreadyHaveID(int id)
+            {
+                for (int i = 0; i < Ents.Count; i++)
+                {
+                    if (Ents[i].Id == id)
+                    {
+                        return true;
+                    }
+                }
+
+                return false;
             }
         }
     }
