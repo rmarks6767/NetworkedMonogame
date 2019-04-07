@@ -210,19 +210,18 @@ namespace VRChat2
             {
                 //PARSING INCOMMING DATA IF ANY
 
-                if (Client.receiveDone != null)
-                {
-                    MyClient.Receive();
-                }
+                MyClient.Receive();
                 List<SendingClientInfo> clientInfo = null;
                 MoveOther moveOther;
                 MoveYou moveYou;
 
+                string command = CurrentCommand;
+
                 //Parse the data sent by the server
-                if (CurrentCommand != "" && CurrentCommand != null)
+                if (command != "" && command != null)
                 {
-                    System.Console.WriteLine(CurrentCommand);
-                    string[] tempCmdArgs = CurrentCommand.Split(',');
+                    System.Console.WriteLine(command);
+                    string[] tempCmdArgs = command.Split(',');
                     int cmdHead = int.Parse(tempCmdArgs[0]);
 
                     switch ((Command)cmdHead)
@@ -300,6 +299,7 @@ namespace VRChat2
                         break;
                 }
                 //Clear the current command.
+                command = null;
                 CurrentCommand = null;
             }
 

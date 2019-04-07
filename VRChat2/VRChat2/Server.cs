@@ -125,14 +125,14 @@ namespace VRChat2
             Socket listener = (Socket)ar.AsyncState;
             Socket handler = listener.EndAccept(ar);
 
-            try
-            {
+            //try
+            //{
                 //tell the main thread to start again
                 allDone.Set();
 
                 // We are now going to add the client connections to a list and create players for them if they don't already have a connection, we
                 // will also see if they are disconnected or not
-                if (!clients.Exists(c => c.ClientSocket == listener))
+                if (!clients.Exists(c => c.ClientSocket == handler))
                 {
                     clients.Add(new Client(handler, globalNextId));
                     globalNextId++;
@@ -154,12 +154,12 @@ namespace VRChat2
                     state.workSocket = handler;
                     handler.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0, new AsyncCallback(ReadCallback), state);
                 }
-            }
-            catch(Exception e)
-            {
-                Console.WriteLine("AcceptCallback Error: " + e.Message);
-                RemoveClient(listener);
-            }
+            //}
+            //catch(Exception e)
+            //{
+                //Console.WriteLine("AcceptCallback Error: " + e.Message);
+                //RemoveClient(listener);
+            //}
             
         }
 
@@ -194,7 +194,7 @@ namespace VRChat2
                         Console.WriteLine("Read {0} from the socket", content);
                     }
                 }
-                handler.EndReceive(ar);
+                //handler.EndReceive(ar);
 
             }
             catch(Exception e)
@@ -210,11 +210,17 @@ namespace VRChat2
         /// <param name="ar"></param>
         public void Send(Command command, Client client, Socket handler)
         {
-            Console.WriteLine("Now we're waiting at the Send");
-
-            byte[] sendData = GetClientDataToSend(command, client);
-            handler.BeginSend(sendData, 0, sendData.Length, SocketFlags.None, new AsyncCallback(SendCallback), handler);
-            
+            try
+            {
+                Console.WriteLine("Now we're waiting at the Send");
+                byte[] sendData = GetClientDataToSend(command, client);
+                handler.BeginSend(sendData, 0, sendData.Length, SocketFlags.None, new AsyncCallback(SendCallback), handler);
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine("Sending error: " + e.Message);
+                RemoveClient(handler);
+            }
         }
 
         public void SendCallback(IAsyncResult ar)
@@ -256,10 +262,15 @@ namespace VRChat2
         /// <param name="client">The current client in question</param>
         public void RemoveClient(Socket client)
         {
+            try
+            {
 
-            Client current = clients.Find(c => c.ClientSocket == client);
-            Console.WriteLine("Client with id:{0} removed, it is disconnected", current.ID);
-            clients.Remove(current);
+            }
+            catch
+            {
+
+            }
+            
         }
 
         public byte[] GetClientDataToSend(Command command, Client client)

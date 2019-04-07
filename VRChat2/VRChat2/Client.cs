@@ -114,6 +114,72 @@ namespace VRChat2
             
         }
 
+        /// <summary>
+        /// How we recieve the data from the sever to make the characters move
+        /// </summary>
+        public void Receive()
+        {
+            try
+            {
+                //Create the state object
+                StateObject state = new StateObject();
+                state.workSocket = client;
+
+                //Get the data from the 
+                client.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0, new AsyncCallback(ReceiveCallback), state);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Error: " + e);
+            }
+        }
+
+        private void ReceiveCallback(IAsyncResult ar)
+        {
+            try
+            {
+                //Retrieve the state object 
+                StateObject state = (StateObject)ar.AsyncState;
+                client = state.workSocket;
+
+                //Read the data from the remote device
+                int bytesRead = client.EndReceive(ar);
+
+                //See what the data is
+                if (bytesRead > 0)
+                {
+                    Console.WriteLine(bytesRead);
+
+                    //Make the bytes a string and add
+                    state.sb.Append(Encoding.ASCII.GetString(state.buffer, 0, bytesRead));
+
+                    //Keep getting data until there is no more data
+                    client.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0, new AsyncCallback(ReceiveCallback), state);
+                }
+                else
+                {
+                    //all the data has been received put it together
+                    if (state.sb.Length > 0)
+                    {
+                        Console.WriteLine(state.sb.ToString());
+                    }
+
+                    Game1.CurrentCommand = state.sb.ToString();
+
+                    receiveDone.Set();
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Error: " + e);
+            }
+        }
+
+
+
+
+
+        /*
         public void Receive()
         {
             try
@@ -127,7 +193,7 @@ namespace VRChat2
             {
                 Console.WriteLine("Could not recieve data: Error: " + e.Message);
             }
-        }
+        }*/
 
 
 
