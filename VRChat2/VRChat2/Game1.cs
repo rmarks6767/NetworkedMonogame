@@ -142,7 +142,7 @@ namespace VRChat2
                 ip = "129.21.50.210";
                 SERVER = false;
                 System.Console.WriteLine("Creating a client");
-                Client MyClient = new Client(IPAddress.Parse(ip), 8888);
+                MyClient = new Client(IPAddress.Parse(ip), 8888);
             }
 
         }
@@ -195,6 +195,7 @@ namespace VRChat2
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
+            
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == Microsoft.Xna.Framework.Input.ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Microsoft.Xna.Framework.Input.Keys.Escape))
                 Exit();
 
@@ -202,18 +203,22 @@ namespace VRChat2
 
             if (SERVER)
             {
+                System.Console.WriteLine("You're the server");
                 //IDK WHAT YOU DO HERE RIVER...
             }
             else
             {
                 //PARSING INCOMMING DATA IF ANY
+
+                MyClient.Receive();
                 List<SendingClientInfo> clientInfo = null;
                 MoveOther moveOther;
                 MoveYou moveYou;
 
                 //Parse the data sent by the server
-                if (CurrentCommand != null)
+                if (CurrentCommand != "" && CurrentCommand != null)
                 {
+                    System.Console.WriteLine(CurrentCommand);
                     string[] tempCmdArgs = CurrentCommand.Split(',');
                     int cmdHead = int.Parse(tempCmdArgs[0]);
 
@@ -265,10 +270,12 @@ namespace VRChat2
                 switch (gameState)
                 {
                     case GameState.waiting:
-                        System.Console.WriteLine("Got data");
+                        
+                        
                         //If we got client info from the server, lets populate drawnEnts array
                         if (clientInfo != null)
                         {
+                            System.Console.WriteLine("Got data");
                             gameState = GameState.playing;
                             foreach(SendingClientInfo s in clientInfo)
                             {

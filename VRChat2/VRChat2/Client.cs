@@ -106,8 +106,9 @@ namespace VRChat2
 
         public void Connect()
         {
-            client.BeginConnect(address, port, new AsyncCallback(ConnectCallback), client);
-            connectDone.WaitOne();
+                Console.WriteLine("CONNECTING");
+                client.BeginConnect(address, port, new AsyncCallback(ConnectCallback), client);
+                connectDone.WaitOne();
         }
 
         /// <summary>
@@ -174,7 +175,7 @@ namespace VRChat2
         /// <summary>
         /// How we recieve the data from the sever to make the characters move
         /// </summary>
-        private void Receive()
+        public void Receive()
         {
             try
             {
@@ -205,7 +206,6 @@ namespace VRChat2
                 //See what the data is
                 if (bytesRead > 0)
                 {
-                    Console.WriteLine(bytesRead);
 
                     //Make the bytes a string and add
                     state.sb.Append(Encoding.ASCII.GetString(state.buffer, 0, bytesRead));
@@ -221,6 +221,9 @@ namespace VRChat2
                         Console.WriteLine(state.sb.ToString());
                     }
                     receiveDone.Set();
+                    
+                    Game1.CurrentCommand = state.sb.ToString();
+                    Console.WriteLine(state.sb.ToString());
                 }
             }
             catch (Exception e)
