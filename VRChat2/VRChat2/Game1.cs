@@ -457,16 +457,17 @@ namespace VRChat2
             gameState = GameState.playing;
             foreach (SendingClientInfo s in clientInfo)
             {
-                Ents.Add(
-                    new DrawnEnt(
+                DrawnEnt ent = new DrawnEnt(
                         new Rectangle(s.x, s.y, s.w, s.h),
                         assestsDict[(Assets)s.spriteID],
                         s.color,
                         s.id
-                        ));
-                if(s.id == MyClient.ID)
+                        );
+                Ents.Add(ent);
+                    
+                if(ent.Id == MyClient.ID)
                 {
-                    ply = s;
+                    ply = ent;
                 }
 
             }
