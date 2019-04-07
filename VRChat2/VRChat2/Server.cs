@@ -190,12 +190,11 @@ namespace VRChat2
                 {
                     //Add all the new read data to a string
                     state.sb.Append(Encoding.ASCII.GetString(state.buffer, 0, read));
+                    //Console.WriteLine("REEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE");
 
                     //Keep reading until there is no more data
                     handler.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0, new AsyncCallback(ReadCallback), state);
                 }
-                else
-                {
                     //As long as that above string has data we will process it
                     if (state.sb.Length > 1)
                     {
@@ -223,7 +222,6 @@ namespace VRChat2
                         Send((Command)cmdHead, client, handler, null);
                         Console.WriteLine("Read {0} from the socket", content);
                     }
-                }
 
             }
             catch(SocketException e)

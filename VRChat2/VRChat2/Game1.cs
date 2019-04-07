@@ -368,7 +368,7 @@ namespace VRChat2
                         {
                             MyClient.Send(string.Format(
                                 "{0},{1},{2},{3},{4}{5}",
-                                Command.MoveMe,
+                                (int)Command.MoveMe,
                                 MyClient.ID,
                                 ply.Position.X - UniversalSpeed,
                                 ply.Position.Y,
@@ -379,7 +379,7 @@ namespace VRChat2
                         {
                             MyClient.Send(string.Format(
                                 "{0},{1},{2},{3},{4}{5}",
-                                Command.MoveMe,
+                                (int)Command.MoveMe,
                                 MyClient.ID,
                                 ply.Position.X + UniversalSpeed,
                                 ply.Position.Y,
@@ -390,7 +390,7 @@ namespace VRChat2
                         {
                             MyClient.Send(string.Format(
                                 "{0},{1},{2},{3},{4},{5}",
-                                Command.MoveMe,
+                                (int)Command.MoveMe,
                                 MyClient.ID,
                                 ply.Position.X,
                                 ply.Position.Y - UniversalSpeed,
@@ -402,7 +402,7 @@ namespace VRChat2
                             MyClient.Send(string.Format(
                                 "{0},{1},{2},{3},{4},{5}",
                                 MyClient.ID,
-                                Command.MoveMe,
+                                (int)Command.MoveMe,
                                 ply.Position.X,
                                 ply.Position.Y + UniversalSpeed,
                                 ply.Position.Width,
