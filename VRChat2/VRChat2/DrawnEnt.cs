@@ -29,11 +29,12 @@ namespace VRChat2
         public float Depth { get => depth; set => depth = value; }
         public int Id { get => id; set => id = value; }
 
-        public DrawnEnt(Rectangle position, Texture2D sprite,Color tint)
+        public DrawnEnt(Rectangle position, Texture2D sprite,Color tint,int id)
         {
             this.position = position;
             this.sprite = sprite;
             this.tint = tint;
+            this.id = id;
             depth = 0;
         }
 
