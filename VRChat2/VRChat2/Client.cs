@@ -70,7 +70,6 @@ namespace VRChat2
         Player ply;
         public Player Ply { get { return ply; } }
 
-
         /// <summary>
         /// The Client that will be created off of the given address and the port
         /// </summary>
@@ -81,10 +80,11 @@ namespace VRChat2
             this.address = address;
             this.port = port;
 
+            Random rng = new Random();
             connectDone = new ManualResetEvent(false);
             receiveDone = new ManualResetEvent(false);
             sendDone = new ManualResetEvent(false);
-            ply = new Player(new Rectangle(50, 50, 50, 50), Assets.circle, Color.Black);
+            ply = new Player(new Rectangle(rng.Next(0, 200), rng.Next(0, 200), 50, 50), Assets.circle, Color.Black);
 
             client = new Socket(address.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
             
