@@ -427,12 +427,14 @@ namespace VRChat2
                     {
                         if (!(clients[i].ClientSocket == client.ClientSocket))
                         {
-                            Send(Command.AddPlayer, clients[clients.Count - 1], clients[i].ClientSocket, null);
+                            Send(Command.AddPlayer, clients[clients.Count - 1], clients[i].ClientSocket, client);
                         }
                     }
                     break;
                 case Command.AddPlayer: // (Command, X, Y, ID, Sprite, Color)
                     data += (int)Command.SendingClientInfo;
+                    data += ",";
+                    data += ToRemove.ID;
                     data += ',';
                     data += (client.Ply.CollisionBox.X);
                     data += ":";

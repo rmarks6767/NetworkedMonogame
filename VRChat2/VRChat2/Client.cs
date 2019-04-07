@@ -46,8 +46,8 @@ namespace VRChat2
         /// <summary>
         /// The reference to the player that the 
         /// </summary>
-        DrawnEnt ply;
-        public DrawnEnt Ply { get { return ply; } set { ply = value; } }
+        Player ply;
+        public Player Ply { get { return ply; } set { ply = value; } }
 
         /// <summary>
         /// The Client that will be created off of the given address and the port
