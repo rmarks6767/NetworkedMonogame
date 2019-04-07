@@ -84,8 +84,6 @@ namespace VRChat2
             connectDone = new ManualResetEvent(false);
             receiveDone = new ManualResetEvent(false);
             sendDone = new ManualResetEvent(false);
-            ply = new Player(new Rectangle(rng.Next(0, 200), rng.Next(0, 200), 50, 50), Assets.circle, Color.Black);
-
             client = new Socket(address.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
             
             Connect();
@@ -98,9 +96,11 @@ namespace VRChat2
         /// <param name="clientNum">The id of that client so we can find it</param>
         public Client(Socket socket, int id)
         {
+            Random rng = new Random();
+
             this.client = socket;
             this.id = id;
-            ply = new Player(new Rectangle(50, 50, 50, 50), Assets.circle, Color.Black);
+            ply = new Player(new Rectangle(rng.Next(0, 200), rng.Next(0, 200), 50, 50), Assets.circle, Color.Black);
 
         }
 
