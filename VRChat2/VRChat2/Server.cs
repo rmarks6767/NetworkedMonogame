@@ -132,7 +132,7 @@ namespace VRChat2
 
                 // We are now going to add the client connections to a list and create players for them if they don't already have a connection, we
                 // will also see if they are disconnected or not
-                if (!clients.Exists(c => c.TClient == listener))
+                if (!clients.Exists(c => c.ClientSocket == listener))
                 {
                     clients.Add(new Client(handler, globalNextId));
                     globalNextId++;
