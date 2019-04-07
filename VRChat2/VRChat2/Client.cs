@@ -70,6 +70,8 @@ namespace VRChat2
         Player ply;
         public Player Ply { get { return ply; } }
 
+        public string CurrentCommand; 
+
         /// <summary>
         /// The Client that will be created off of the given address and the port
         /// </summary>
@@ -80,6 +82,7 @@ namespace VRChat2
             this.address = address;
             this.port = port;
 
+            CurrentCommand = "";
             Random rng = new Random();
             connectDone = new ManualResetEvent(false);
             receiveDone = new ManualResetEvent(false);
@@ -101,7 +104,6 @@ namespace VRChat2
             this.client = socket;
             this.id = id;
             ply = new Player(new Rectangle(rng.Next(0, 200), rng.Next(0, 200), 50, 50), Assets.circle, Color.Black);
-
         }
 
         public void Connect()
@@ -222,7 +224,7 @@ namespace VRChat2
                     }
                     receiveDone.Set();
                     
-                    Game1.CurrentCommand = state.sb.ToString();
+                    CurrentCommand = state.sb.ToString();
                     Console.WriteLine(state.sb.ToString());
                 }
             }

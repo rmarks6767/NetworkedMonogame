@@ -216,10 +216,10 @@ namespace VRChat2
                 MoveYou moveYou;
 
                 //Parse the data sent by the server
-                if (CurrentCommand != "" && CurrentCommand != null)
+                if (MyClient.CurrentCommand != "" && MyClient.CurrentCommand != null)
                 {
-                    System.Console.WriteLine(CurrentCommand);
-                    string[] tempCmdArgs = CurrentCommand.Split(',');
+                    System.Console.WriteLine(MyClient.CurrentCommand);
+                    string[] tempCmdArgs = MyClient.CurrentCommand.Split(',');
                     int cmdHead = int.Parse(tempCmdArgs[0]);
 
                     switch ((Command)cmdHead)
