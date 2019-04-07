@@ -367,7 +367,7 @@ namespace VRChat2
                         if (Keyboard.GetState().IsKeyDown(Keys.A))
                         {
                             MyClient.Send(string.Format(
-                                "{0},{1},{2},{3},{4}{5}",
+                                "{0},{1},{2},{3},{4},{5}",
                                 (int)Command.MoveMe,
                                 MyClient.ID,
                                 ply.Position.X - UniversalSpeed,
@@ -378,7 +378,7 @@ namespace VRChat2
                         else if (Keyboard.GetState().IsKeyDown(Keys.D))
                         {
                             MyClient.Send(string.Format(
-                                "{0},{1},{2},{3},{4}{5}",
+                                "{0},{1},{2},{3},{4},{5}",
                                 (int)Command.MoveMe,
                                 MyClient.ID,
                                 ply.Position.X + UniversalSpeed,

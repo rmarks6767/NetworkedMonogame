@@ -91,7 +91,7 @@ namespace VRChat2
                 Console.WriteLine("CONNECTING");
                 client.Connect(address, port);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Console.WriteLine("Couldn't establish a connection: " + e.Message);
             }
@@ -108,11 +108,11 @@ namespace VRChat2
                 client.Send(byteData);
                 Receive();
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Console.WriteLine("Data could not be sent, connection refused: Error: " + e.Message);
             }
-            
+
         }
 
         /// <summary>
@@ -161,163 +161,5 @@ namespace VRChat2
                 Console.WriteLine("Error: " + e);
             }
         }
-
-
-
-
-
-        /*
-        public void Receive()
-        {
-            try
-            {
-                byte[] bytes = new byte[1024];
-                int bytesRec = client.Receive(bytes);
-                Game1.CurrentCommand = Encoding.ASCII.GetString(bytes, 0, bytesRec);
-                receiveDone.Close();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine("Could not recieve data: Error: " + e.Message);
-            }
-        }*/
-
-
-
-
     }
 }
-
-
-
-
-/*
-       
-
-       
-
-       
-       
-
-      
-
-       /// <summary>
-       /// How we establish a connection with the server, a constant callback
-       /// </summary>
-       /// <param name="ar"></param>
-       private void ConnectCallback(IAsyncResult ar)
-       {
-           try
-           {
-               //Get the socket from the stateobject
-               client = (Socket)ar.AsyncState;
-
-               //Complete the connection
-               client.EndConnect(ar);
-
-               //Set the thread to the current state
-               connectDone.Set();
-
-           }
-           catch (Exception e)
-           {
-               Console.WriteLine("Error: " + e);
-           }
-       }
-
-       /// <summary>
-       /// Now we can send data back and forth between two endpoints
-       /// </summary>
-       /// <param name="data"></param>
-       public void Send(String data)
-       {
-           //Turn the string data into bytes
-           byte[] byteData = new byte[10];//Encoding. .GetBytes(data);
-
-           byteData[0] = 6;
-           //Begin sending the data to the device
-           client.BeginSend(byteData, 0, byteData.Length, SocketFlags.None, new AsyncCallback(SendCallback), client);
-       }
-
-       /// <summary>
-       /// Connects to the server socket and sends the data 
-       /// </summary>
-       /// <param name="ar"></param>
-       private void SendCallback(IAsyncResult ar)
-       {
-           try
-           {
-               //retrieve the socket from the stateobject
-               client = (Socket)ar.AsyncState;
-
-               //Complete sending the data to the remote device
-               int bytesSent = client.EndSend(ar);
-
-               //tell the thread that all bytes have been sent
-               sendDone.Set();
-           }
-           catch (Exception e)
-           {
-               Console.WriteLine("Error: " + e);
-           }
-       }
-
-       /// <summary>
-       /// How we recieve the data from the sever to make the characters move
-       /// </summary>
-       public void Receive()
-       {
-           try
-           {
-               //Create the state object
-               StateObject state = new StateObject();
-               state.workSocket = client;
-
-               //Get the data from the 
-               client.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0, new AsyncCallback(ReceiveCallback), state);
-           }
-           catch(Exception e)
-           {
-               Console.WriteLine("Error: " + e);
-           }
-       }
-
-       private void ReceiveCallback(IAsyncResult ar)
-       {
-           try
-           {
-               //Retrieve the state object 
-               StateObject state = (StateObject)ar.AsyncState;
-               client = state.workSocket;
-
-               //Read the data from the remote device
-               int bytesRead = client.EndReceive(ar);
-
-               //See what the data is
-               if (bytesRead > 0)
-               {
-
-                   //Make the bytes a string and add
-                   state.sb.Append(Encoding.ASCII.GetString(state.buffer, 0, bytesRead));
-
-                   //Keep getting data until there is no more data
-                   client.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0, new AsyncCallback(ReceiveCallback), state);
-               }
-               else
-               {
-                   //all the data has been received put it together
-                   if (state.sb.Length > 0)
-                   {
-                       Console.WriteLine(state.sb.ToString());
-                   }
-                   receiveDone.Set();
-
-                   Game1.CurrentCommand = state.sb.ToString();
-                   Console.WriteLine(state.sb.ToString());
-               }
-           }
-           catch (Exception e)
-           {
-               Console.WriteLine("Error: " + e);
-           }
-       }*/
