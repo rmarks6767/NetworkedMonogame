@@ -12,6 +12,9 @@ namespace VRChat2
         MoveMe,//Client => Server (newX,newY)
         MoveYou,// Server => Client (newX,newY,id)
         MoveOther, // Server => Client (newX,newY,id)
+        SendingClientInfo,
+        AddPlayer,
+        RemovePlayer,
     }
 
     public enum Assets

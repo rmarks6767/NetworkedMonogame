@@ -14,6 +14,7 @@ namespace VRChat2
         /// The event that is associated with whether the multithreading process is done
         /// </summary>
         public static ManualResetEvent allDone = new ManualResetEvent(false);
+        public static ManualResetEvent sendComplete = new ManualResetEvent(false);
 
         /// <summary>
         /// The address the server is running at
@@ -110,7 +111,7 @@ namespace VRChat2
             }
             catch (Exception e)
             {
-                Console.WriteLine("OOF: " + e.Message);
+                Console.WriteLine("Server Running Error: " + e.Message);
             }
         }
 
@@ -128,28 +129,28 @@ namespace VRChat2
             {
                 //tell the main thread to start again
                 allDone.Set();
-                              
+
                 // We are now going to add the client connections to a list and create players for them if they don't already have a connection, we
                 // will also see if they are disconnected or not
-
                 if (!clients.Exists(c => c.ClientSocket == listener))
                 {
-                    clients.Add(new Client(listener, globalNextId));
+                    clients.Add(new Client(handler, globalNextId));
                     globalNextId++;
                     Console.WriteLine("Client {0} connected", clients[clients.Count - 1].ID);
+                    Send(Command.SendingClientInfo, clients[clients.Count - 1], handler);
                 }
                 else
                 {
-                    CheckConnection(listener);
+                    Console.WriteLine("REEEEEEEEEEEEEEEEEEEEEEEEEEEEE");
+                    //Create the state object
+                    StateObject state = new StateObject();
+                    state.workSocket = handler;
+                    handler.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0, new AsyncCallback(ReadCallback), state);
                 }
-                //Create the state object
-                StateObject state = new StateObject();
-                state.workSocket = handler;
-                handler.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0, new AsyncCallback(ReadCallback), state);
             }
             catch(Exception e)
             {
-                Console.WriteLine("Error: " + e.Message);
+                Console.WriteLine("AcceptCallback Error: " + e.Message);
                 RemoveClient(listener);
             }
             
@@ -164,6 +165,8 @@ namespace VRChat2
         {
             try
             {
+                Console.WriteLine("Now we're waiting at the ReadCallback");
+
                 StateObject state = (StateObject)ar.AsyncState;
                 Socket handler = state.workSocket;
 
@@ -183,31 +186,43 @@ namespace VRChat2
                         string content = state.sb.ToString();
                         Console.WriteLine("Read {0} from the socket", content);
                     }
-                    handler.Close();
                 }
+                handler.Close();
+
             }
             catch(Exception e)
             {
-                Console.WriteLine("Exception: " + e.Message);
+                Console.WriteLine("ReadCallback Error: " + e.Message);
             }
-            
+
         }
 
         /// <summary>
         /// Used for sending data back to the client has connected
         /// </summary>
         /// <param name="ar"></param>
-        public void Send(IAsyncResult ar)
+        public void Send(Command command, Client client, Socket handler)
         {
-            byte[] data = GetClientDataToSend();
-            server.BeginSend(data, 0, data.Length, SocketFlags.None, new AsyncCallback(SendCallback), server);
+            Console.WriteLine("Now we're waiting at the Send");
+
+            byte[] sendData = GetClientDataToSend(command, client);
+            handler.BeginSend(sendData, 0, sendData.Length, SocketFlags.None, new AsyncCallback(SendCallback), handler);
+            
         }
 
         public void SendCallback(IAsyncResult ar)
         {
             try
             {
+                Console.WriteLine("Now we're waiting at the SendCallback");
 
+                Socket handler = (Socket)ar.AsyncState;
+
+                int bytesSent = handler.EndSend(ar);
+                Console.WriteLine("Sent {0} bytes to the client", bytesSent);
+
+                handler.Shutdown(SocketShutdown.Both);
+                //handler.Close();
             }
             catch(Exception e)
             {
@@ -221,6 +236,8 @@ namespace VRChat2
         /// <param name="client">The current client in question</param>
         public void CheckConnection(Socket client)
         {
+            Console.WriteLine("Check connection");
+
             if (!client.Connected)
             {
                 RemoveClient(client);
@@ -233,14 +250,103 @@ namespace VRChat2
         /// <param name="client">The current client in question</param>
         public void RemoveClient(Socket client)
         {
+
             Client current = clients.Find(c => c.ClientSocket == client);
             Console.WriteLine("Client with id:{0} removed, it is disconnected", current.ID);
             clients.Remove(current);
         }
 
-        public byte[] GetClientDataToSend()
+        public byte[] GetClientDataToSend(Command command, Client client)
         {
-            return null;
+            Console.WriteLine("Getting the data to send");
+            string data = "";
+
+            switch (command)
+            {
+                case Command.MoveMe: // (Command, X, Y)
+                    data += (int)Command.MoveMe;
+                    data += ",";
+                    data += client.Ply.CollisionBox.X;
+                    data += ",";
+                    data += client.Ply.CollisionBox.Y;
+                    break;
+                case Command.MoveOther: // (Command, X, Y, ID)
+                    data += (int)Command.MoveMe;
+                    data += ",";
+                    data += client.Ply.CollisionBox.X;
+                    data += ",";
+                    data += client.Ply.CollisionBox.Y;
+                    data += ",";
+                    data += client.ID;
+                    break;
+                case Command.MoveYou: // (Command, X, Y, ID)
+                    data += (int)Command.MoveMe;
+                    data += ",";
+                    data += client.Ply.CollisionBox.X;
+                    data += ",";
+                    data += client.Ply.CollisionBox.Y;
+                    data += ",";
+                    data += client.ID;
+                    break;
+                case Command.SendingClientInfo: // (Command, X:Y:Sprite:Color:ID, X:Y:Sprite:Color:ID, X:Y:Sprite:Color:ID...)
+                    data += (int)Command.SendingClientInfo;
+                    data += ",";
+                    for (int i = 0; i < clients.Count; i++)
+                    {
+                        data += (clients[i].Ply.CollisionBox.X);
+                        data += ":";
+                        data += (clients[i].Ply.CollisionBox.Y);
+                        data += ":";
+                        data += (clients[i].Ply.CollisionBox.Width);
+                        data += ":";
+                        data += (clients[i].Ply.CollisionBox.Height);
+                        data += ":";
+                        data += (clients[i].ID);
+                        data += ":";
+                        data += (int)(clients[i].Ply.Sprite);
+                        data += ":";
+                        data += (clients[i].Ply.Color.R);
+                        data += ":";
+                        data += (clients[i].Ply.Color.G);
+                        data += ":";
+                        data += (clients[i].Ply.Color.B);
+                        
+                        if (i != clients.Count - 1)
+                        {
+                            data += ",";
+                        }
+                    }
+                    break;
+                case Command.AddPlayer: // (Command, X, Y, ID, Sprite, Color)
+                    data += (int)Command.AddPlayer;
+                    data += (client.Ply.CollisionBox.X);
+                    data += ",";
+                    data += (client.Ply.CollisionBox.Y);
+                    data += ",";
+                    data += (client.ID);
+                    data += ",";
+                    data += (int)(client.Ply.Sprite);
+                    data += ",";
+                    data += (client.Ply.Color);
+                    break;
+                case Command.RemovePlayer: // (Command, ID)
+                    data += (int)Command.RemovePlayer;
+                    data += ",";
+                    data += (client.Ply.Color.R);
+                    data += ",";
+                    data += (client.Ply.Color.G);
+                    data += ",";
+                    data += (client.Ply.Color.B);
+                    break;
+                default:
+                    Console.WriteLine("We shouldn't be here");
+                    break;
+            }
+            Console.WriteLine("Sending data: {0}", data);
+
+            byte[] byteData = Encoding.ASCII.GetBytes(data);
+
+            return byteData;
         }
     }
 }
