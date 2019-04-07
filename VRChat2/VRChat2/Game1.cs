@@ -5,6 +5,17 @@ using System.Net;
 using System.Net.Sockets;
 using System.Collections.Generic;
 
+struct RemovePlayer
+{
+    public int id;
+
+    public RemovePlayer(int id)
+    {
+        this.id = id;
+    }
+
+
+}
 
 struct MoveYou
 {
@@ -63,12 +74,13 @@ namespace VRChat2
 {
     public enum Command
     {
+        Null,//Nothing is being sent
         MoveMe,//Client => Server (newX,newY)
         MoveYou,// Server => Client (newX,newY,id)
         MoveOther, // Server => Client (newX,newY,id)
         SendingClientInfo,
-        AddPlayer,
         RemovePlayer,
+        
     }
     
     public enum Assets
@@ -90,6 +102,7 @@ namespace VRChat2
     /// </summary>
     public class Game1 : Game
     {
+        const int UniversalSpeed = 5;
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
         GameState gameState;
@@ -206,24 +219,25 @@ namespace VRChat2
                 System.Console.WriteLine("You're the server");
                 //IDK WHAT YOU DO HERE RIVER...
             }
-            else
+            else//CLIENT
             {
                 //PARSING INCOMMING DATA IF ANY
 
                 MyClient.Receive();
                 List<SendingClientInfo> clientInfo = null;
-                MoveOther moveOther;
-                MoveYou moveYou;
-
+                MoveOther moveOther = new MoveOther();
+                MoveYou moveYou = new MoveYou();
+                RemovePlayer removePlayer = new RemovePlayer();
+                Command cmdHead = Command.Null;
 
                 string command = CurrentCommand;
 
-                //Parse the data sent by the server
+                //PARSE DATA SENT BY THE SERVER FOR EASY READING LATER
                 if (command != "" && command != null)
                 {
                     System.Console.WriteLine(command);
                     string[] tempCmdArgs = command.Split(',');
-                    int cmdHead = int.Parse(tempCmdArgs[0]);
+                    cmdHead = (Command)int.Parse(tempCmdArgs[0]);
 
                     switch ((Command)cmdHead)
                     {
@@ -249,15 +263,15 @@ namespace VRChat2
                             clientInfo = new List<SendingClientInfo>();
                             for (int i = 1; i < tempCmdArgs.Length; i++)
                             {
-                                string[] ply = tempCmdArgs[i].Split(':');
+                                string[] arg = tempCmdArgs[i].Split(':');
                                 SendingClientInfo plyStruct = new SendingClientInfo(
-                                    int.Parse(ply[0]),
-                                    int.Parse(ply[1]),
-                                    int.Parse(ply[2]),
-                                    int.Parse(ply[3]),
-                                    int.Parse(ply[4]),
-                                    int.Parse(ply[5]),
-                                    new Color(int.Parse(ply[6]),int.Parse(ply[7]),int.Parse(ply[8]))
+                                    int.Parse(arg[0]),
+                                    int.Parse(arg[1]),
+                                    int.Parse(arg[2]),
+                                    int.Parse(arg[3]),
+                                    int.Parse(arg[4]),
+                                    int.Parse(arg[5]),
+                                    new Color(int.Parse(arg[6]),int.Parse(arg[7]),int.Parse(arg[8]))
                                     );
                                 clientInfo.Add(plyStruct);
                             }
@@ -266,6 +280,9 @@ namespace VRChat2
                         case Command.MoveMe:
                             System.Console.WriteLine("Why did the server send me this?");
                             break;
+                        case Command.RemovePlayer:
+                            removePlayer = new RemovePlayer(int.Parse(tempCmdArgs[1]));
+                            break;
                     }
                     Client.receiveDone = new System.Threading.ManualResetEvent(false);
                 }
@@ -273,35 +290,123 @@ namespace VRChat2
                 switch (gameState)
                 {
                     case GameState.waiting:
-                        
-                        
+
+
                         //If we got client info from the server, lets populate drawnEnts array
-                        if (clientInfo != null)
+
+                        if (cmdHead == Command.SendingClientInfo)
                         {
-                            System.Console.WriteLine("Got data");
+                            System.Console.WriteLine("Got initial client info");
                             gameState = GameState.playing;
-                            foreach(SendingClientInfo s in clientInfo)
-                            {
-                                Ents.Add(
-                                    new DrawnEnt(
-                                        new Rectangle(s.x, s.y, s.w, s.h),
-                                        assestsDict[(Assets)s.spriteID],
-                                        s.color,
-                                        s.id
-                                        ));
-                                        
-                            }
+                            GetClientInfo(clientInfo);
                         }
 
                         break;
                     case GameState.playing:
-                        
-                        //MyClient.Send();
+                        switch(cmdHead){
+                            case Command.Null:
+                                //NOTHING SHOULD EVER HAPPEN WHEN WE'RE NULL
+                                break;
+                            case Command.SendingClientInfo:
+                                System.Console.WriteLine("Got client info!");
+                                
+                                ///I don't know how we could get here with clientInfo being null but you
+                                ///can never be too safe
+                                if (clientInfo != null)
+                                {
+                                    GetClientInfo(clientInfo);
+                                }
+                                break;
+
+                            case Command.MoveMe:
+                                System.Console.WriteLine("We should not have gotten this. Wtf is the server doing?");
+                                break;
+
+                            case Command.MoveYou:
+                                System.Console.WriteLine("Got a move you command");
+                               ply.Position = new Rectangle(
+                                    moveYou.x,
+                                    moveYou.y,
+                                    ply.Position.Width,
+                                    ply.Position.Height
+                                    );
+
+                                break;
+                            case Command.MoveOther:
+                                System.Console.WriteLine("Got a move other command");
+                                for(int i = 0; i < Ents.Count; i++)
+                                {
+                                    //If we found an ent with the id of the ent we're supposed to move, move it
+                                    if (Ents[i].Id == moveOther.id)
+                                    {
+                                        Ents[i].Position = new Rectangle(
+                                            moveOther.x,
+                                            moveOther.y,
+                                            Ents[i].Position.Width,
+                                            Ents[i].Position.Height);
+                                        break;
+                                    }
+                                }
+                                break;
+                            case Command.RemovePlayer:
+                                System.Console.WriteLine("Got a move player command");
+                                for(int i = 0; i < Ents.Count; i++)
+                                {
+                                    if (Ents[i].Id == removePlayer.id)
+                                    {
+                                        Ents.RemoveAt(i);
+                                        break;
+                                    }
+                                }
+                                break;
+
+
+                        }
+
+                        //CHECK FOR KEY PRESSES NOW
+                        if (Keyboard.GetState().IsKeyDown(Keys.A))
+                        {
+                            MyClient.Send(string.Format(
+                                "{0},{1},{2},{3},{4}",
+                                Command.MoveMe, ply.Position.X - UniversalSpeed,
+                                ply.Position.Y,ply.Position.Width,
+                                ply.Position.Height));
+                        }
+                        else if (Keyboard.GetState().IsKeyDown(Keys.D))
+                        {
+                            MyClient.Send(string.Format(
+                                "{0},{1},{2},{3},{4}",
+                                Command.MoveMe,
+                                ply.Position.X + UniversalSpeed,
+                                ply.Position.Y,
+                                ply.Position.Width,
+                                ply.Position.Height));
+                        }
+                        else if (Keyboard.GetState().IsKeyDown(Keys.W))
+                        {
+                            MyClient.Send(string.Format(
+                                "{0},{1},{2},{3},{4}",
+                                Command.MoveMe,
+                                ply.Position.X,
+                                ply.Position.Y - UniversalSpeed,
+                                ply.Position.Width,
+                                ply.Position.Height));
+                        }
+                        else if (Keyboard.GetState().IsKeyDown(Keys.S))
+                        {
+                            MyClient.Send(string.Format(
+                                "{0},{1},{2},{3},{4}",
+                                Command.MoveMe,
+                                ply.Position.X,
+                                ply.Position.Y + UniversalSpeed,
+                                ply.Position.Width,
+                                ply.Position.Height));
+                        }
                         break;
                 }
                 //Clear the current command.
                 command = null;
-                CurrentCommand = null;
+                CurrentCommand = command;
             }
 
             //client.
@@ -344,6 +449,23 @@ namespace VRChat2
             }
 
             return "oh fug";
+        }
+
+        void GetClientInfo(List<SendingClientInfo> clientInfo)
+        {
+            System.Console.WriteLine("Got data");
+            gameState = GameState.playing;
+            foreach (SendingClientInfo s in clientInfo)
+            {
+                Ents.Add(
+                    new DrawnEnt(
+                        new Rectangle(s.x, s.y, s.w, s.h),
+                        assestsDict[(Assets)s.spriteID],
+                        s.color,
+                        s.id
+                        ));
+
+            }
         }
     }
 }
