@@ -61,6 +61,7 @@ namespace VRChat2
 
             Random rng = new Random();
             client = new Socket(address.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+            ply = new Player(new Rectangle(rng.Next(0, 200), rng.Next(0, 200), 50, 50), Assets.circle, Color.Black);
 
             Connect();
         }
