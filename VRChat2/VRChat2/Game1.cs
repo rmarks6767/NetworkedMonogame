@@ -464,6 +464,10 @@ namespace VRChat2
                         s.color,
                         s.id
                         ));
+                if(s.id == MyClient.ID)
+                {
+                    ply = s;
+                }
 
             }
         }
