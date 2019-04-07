@@ -80,7 +80,7 @@ namespace VRChat2
         MoveOther, // Server => Client (newX,newY,id)
         SendingClientInfo,
         RemovePlayer,
-        
+        AddPlayer,
     }
     
     public enum Assets
