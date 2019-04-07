@@ -12,6 +12,11 @@ namespace VRChat2
     class Client
     {
         /// <summary>
+        /// The threading part for the client
+        /// </summary>
+        public static ManualResetEvent receiveDone = new ManualResetEvent(false);
+
+        /// <summary>
         /// The Socket that the client is connected to
         /// </summary>
         Socket client;
@@ -116,6 +121,7 @@ namespace VRChat2
                 byte[] bytes = new byte[1024];
                 int bytesRec = client.Receive(bytes);
                 Game1.CurrentCommand = Encoding.ASCII.GetString(bytes, 0, bytesRec);
+                receiveDone.Close();
             }
             catch (Exception e)
             {

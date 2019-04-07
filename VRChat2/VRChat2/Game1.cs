@@ -210,7 +210,10 @@ namespace VRChat2
             {
                 //PARSING INCOMMING DATA IF ANY
 
-                MyClient.Receive();
+                if (Client.receiveDone != null)
+                {
+                    MyClient.Receive();
+                }
                 List<SendingClientInfo> clientInfo = null;
                 MoveOther moveOther;
                 MoveYou moveYou;
@@ -264,7 +267,7 @@ namespace VRChat2
                             System.Console.WriteLine("Why did the server send me this?");
                             break;
                     }
-                    
+                    Client.receiveDone = new System.Threading.ManualResetEvent(false);
                 }
                 
                 switch (gameState)
