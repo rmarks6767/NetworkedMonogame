@@ -247,6 +247,7 @@ namespace VRChat2
                                 int.Parse(tempCmdArgs[2]),
                                 int.Parse(tempCmdArgs[3])
                                 );
+                            System.Console.WriteLine("Move other ID: " + moveOther.id);
 
                             break;
 
@@ -256,12 +257,13 @@ namespace VRChat2
                                 int.Parse(tempCmdArgs[2]), 
                                 int.Parse(tempCmdArgs[3])
                                 );
-
+                            System.Console.WriteLine("Move you ID: " + moveOther.id);
                             break;
 
                         case Command.SendingClientInfo:
                             clientInfo = new List<SendingClientInfo>();
                             MyClient.ID = int.Parse(tempCmdArgs[1]);
+                            System.Console.WriteLine("MY ID SET TO: " + MyClient.ID);
                             for (int i = 2; i < tempCmdArgs.Length; i++)
                             {
                                 string[] arg = tempCmdArgs[i].Split(':');
@@ -473,7 +475,11 @@ namespace VRChat2
                 if (!AlreadyHaveID(ent.Id))
                 {
                     Ents.Add(ent);
-                    ply = Ents[Ents.Count - 1];
+                }
+
+                if (ent.Id == MyClient.ID)
+                {
+                    ply = ent;
                 }
             }
 
