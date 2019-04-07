@@ -297,7 +297,7 @@ namespace VRChat2
                         break;
                 }
                 //Clear the current command.
-                //CurrentCommand = null;
+                CurrentCommand = null;
             }
 
             //client.
