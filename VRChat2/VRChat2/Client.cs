@@ -15,17 +15,13 @@ namespace VRChat2
         /// The threading part for the client
         /// </summary>
         public static ManualResetEvent receiveDone = new ManualResetEvent(false);
+        public static ManualResetEvent sendDone = new ManualResetEvent(false);
 
         /// <summary>
         /// The Socket that the client is connected to
         /// </summary>
         Socket client;
         public Socket ClientSocket { get { return client; } set { client = value; } }
-
-        /// <summary>
-        /// How to actually send and receive data
-        /// </summary>
-        NetworkStream ns;
 
         /// <summary>
         /// The number that is associated with the client
@@ -98,23 +94,51 @@ namespace VRChat2
             }
         }
 
+        
+
+
         /// <summary>
-        /// Send data to the server and wait for a response
+        /// Now we can send data back and forth between two endpoints
         /// </summary>
-        public void Send(string data)
+        /// <param name="data"></param>
+        public void Send(String data)
+        {
+            //Turn the string data into bytes
+            byte[] byteData =Encoding.ASCII.GetBytes(data);
+
+            byteData[0] = 6;
+            //Begin sending the data to the device
+            client.BeginSend(byteData, 0, byteData.Length, SocketFlags.None, new AsyncCallback(SendCallback), client);
+        }
+
+        /// <summary>
+        /// Connects to the server socket and sends the data 
+        /// </summary>
+        /// <param name="ar"></param>
+        private void SendCallback(IAsyncResult ar)
         {
             try
             {
-                byte[] byteData = Encoding.ASCII.GetBytes(data);
-                client.Send(byteData);
-                Receive();
+                //retrieve the socket from the stateobject
+                client = (Socket)ar.AsyncState;
+
+                //Complete sending the data to the remote device
+                int bytesSent = client.EndSend(ar);
+
+                //tell the thread that all bytes have been sent
+                sendDone.Set();
             }
             catch (Exception e)
             {
-                Console.WriteLine("Data could not be sent, connection refused: Error: " + e.Message);
+                Console.WriteLine("Error: " + e);
             }
-
         }
+
+
+
+
+
+
 
         /// <summary>
         /// How we recieve the data from the sever to make the characters move
@@ -164,3 +188,23 @@ namespace VRChat2
         }
     }
 }
+
+
+/* /// <summary>
+        /// Send data to the server and wait for a response
+        /// </summary>
+        public void Send(string data)
+        {
+            try
+            {
+                byte[] byteData = Encoding.ASCII.GetBytes(data);
+                client.Send(byteData);
+                Receive();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Data could not be sent, connection refused: Error: " + e.Message);
+            }
+
+        }
+*/
