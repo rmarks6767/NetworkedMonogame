@@ -145,26 +145,14 @@ namespace VRChat2
                 //Read the data from the remote device
                 int bytesRead = client.EndReceive(ar);
 
+                Console.WriteLine(bytesRead);
                 //See what the data is
                 if (bytesRead > 0)
                 {
                     Console.WriteLine(bytesRead);
 
-                    //Make the bytes a string and add
-                    state.sb.Append(Encoding.ASCII.GetString(state.buffer, 0, bytesRead));
-
-                    //Keep getting data until there is no more data
-                    client.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0, new AsyncCallback(ReceiveCallback), state);
-                }
-                else
-                {
-                    //all the data has been received put it together
-                    if (state.sb.Length > 0)
-                    {
-                        Console.WriteLine(state.sb.ToString());
-                    }
-
-                    Game1.CurrentCommand = state.sb.ToString();
+                    Game1.CurrentCommand = Encoding.ASCII.GetString(state.buffer, 0, bytesRead);
+                    Console.WriteLine(Game1.CurrentCommand);
 
                     receiveDone.Set();
                 }

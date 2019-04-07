@@ -215,6 +215,8 @@ namespace VRChat2
                 MoveOther moveOther;
                 MoveYou moveYou;
 
+                System.Console.WriteLine(CurrentCommand);
+
                 string command = CurrentCommand;
 
                 //Parse the data sent by the server
