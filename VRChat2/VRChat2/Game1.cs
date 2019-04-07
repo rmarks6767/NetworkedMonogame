@@ -475,12 +475,10 @@ namespace VRChat2
                     Ents.Add(ent);
                 }
                 
-                
-                    
-                if(ent.Id == MyClient.ID)
-                {
-                    ply = ent;
-                }
+                //if(ent.Id == MyClient.ID)
+                //{
+                   // ply = ent;
+                //}
 
             }
 
