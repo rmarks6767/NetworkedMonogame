@@ -114,8 +114,9 @@ namespace VRChat2
             try
             {
                 byte[] bytes = new byte[1024];
-                client.Receive(bytes);
-                Game1.CurrentCommand = Encoding.ASCII.GetString(bytes, 0, bytes.Length);
+                int bytesRec = client.Receive(bytes);
+
+                Game1.CurrentCommand = Encoding.ASCII.GetString(bytes, 0, bytesRec);
             }
             catch (Exception e)
             {
