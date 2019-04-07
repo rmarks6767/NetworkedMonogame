@@ -66,9 +66,11 @@ namespace VRChat2
         MoveMe,//Client => Server (newX,newY)
         MoveYou,// Server => Client (newX,newY,id)
         MoveOther, // Server => Client (newX,newY,id)
-        SendingClientInfo,// Server => Client [(x1,y1,id,sprite,color),(x2,y2,id,sprite,color),(x3,y3,id,sprite,color)...]
-
+        SendingClientInfo,
+        AddPlayer,
+        RemovePlayer,
     }
+    
     public enum Assets
     {
         circle,

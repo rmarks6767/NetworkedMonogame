@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading;
 using System.Net;
 using System.Net.Sockets;
+using Microsoft.Xna.Framework;
 
 namespace VRChat2
 {
@@ -64,6 +65,13 @@ namespace VRChat2
         int port;
 
         /// <summary>
+        /// The reference to the player that the 
+        /// </summary>
+        Player ply;
+        public Player Ply { get { return ply; } }
+
+
+        /// <summary>
         /// The Client that will be created off of the given address and the port
         /// </summary>
         /// <param name="address">The address that the server is at</param>
@@ -76,6 +84,7 @@ namespace VRChat2
             connectDone = new ManualResetEvent(false);
             receiveDone = new ManualResetEvent(false);
             sendDone = new ManualResetEvent(false);
+            ply = new Player(new Rectangle(50, 50, 50, 50), Assets.circle, Color.Black);
 
             client = new Socket(address.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
             
@@ -91,6 +100,8 @@ namespace VRChat2
         {
             this.client = socket;
             this.id = id;
+            ply = new Player(new Rectangle(50, 50, 50, 50), Assets.circle, Color.Black);
+
         }
 
         public void Connect()
