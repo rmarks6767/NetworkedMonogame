@@ -261,7 +261,8 @@ namespace VRChat2
 
                         case Command.SendingClientInfo:
                             clientInfo = new List<SendingClientInfo>();
-                            for (int i = 1; i < tempCmdArgs.Length; i++)
+                            MyClient.ID = int.Parse(tempCmdArgs[1]);
+                            for (int i = 2; i < tempCmdArgs.Length; i++)
                             {
                                 string[] arg = tempCmdArgs[i].Split(':');
                                 SendingClientInfo plyStruct = new SendingClientInfo(

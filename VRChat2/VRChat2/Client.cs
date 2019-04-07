@@ -31,7 +31,7 @@ namespace VRChat2
         /// The number that is associated with the client
         /// </summary>
         int id;
-        public int ID { get { return id; } }
+        public int ID { get { return id; } set { id = value; } }
 
         /// <summary>
         /// The current address we have to connect to
