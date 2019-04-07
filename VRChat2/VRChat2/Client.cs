@@ -106,7 +106,6 @@ namespace VRChat2
             //Turn the string data into bytes
             byte[] byteData =Encoding.ASCII.GetBytes(data);
 
-            byteData[0] = 6;
             //Begin sending the data to the device
             client.BeginSend(byteData, 0, byteData.Length, SocketFlags.None, new AsyncCallback(SendCallback), client);
         }

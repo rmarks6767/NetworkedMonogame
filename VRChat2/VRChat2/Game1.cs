@@ -473,6 +473,7 @@ namespace VRChat2
                 if (!AlreadyHaveID(ent.Id))
                 {
                     Ents.Add(ent);
+                    ply = Ents[Ents.Count - 1];
                 }
             }
 
