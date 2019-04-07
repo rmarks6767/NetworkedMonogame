@@ -216,10 +216,10 @@ namespace VRChat2
                 MoveYou moveYou;
 
                 //Parse the data sent by the server
-                if (MyClient.CurrentCommand != "" && MyClient.CurrentCommand != null)
+                if (CurrentCommand != "" && CurrentCommand != null)
                 {
-                    System.Console.WriteLine(MyClient.CurrentCommand);
-                    string[] tempCmdArgs = MyClient.CurrentCommand.Split(',');
+                    System.Console.WriteLine(CurrentCommand);
+                    string[] tempCmdArgs = CurrentCommand.Split(',');
                     int cmdHead = int.Parse(tempCmdArgs[0]);
 
                     switch ((Command)cmdHead)
@@ -297,7 +297,7 @@ namespace VRChat2
                         break;
                 }
                 //Clear the current command.
-                CurrentCommand = null;
+                //CurrentCommand = null;
             }
 
             //client.
