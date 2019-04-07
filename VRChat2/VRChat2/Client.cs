@@ -57,7 +57,7 @@ namespace VRChat2
 
             Random rng = new Random();
             client = new Socket(address.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-            ply = new Player(new Rectangle(rng.Next(0, 200), rng.Next(0, 200), 50, 50), Assets.circle, Color.Black);
+            ply = new Player(new Rectangle(rng.Next(0, 200), rng.Next(0, 200), 50, 50), (Assets)rng.Next(0, 3), new Color(rng.Next(0, 255), rng.Next(0, 255), rng.Next(0, 255)));
 
             Connect();
         }
@@ -74,7 +74,7 @@ namespace VRChat2
             this.client = socket;
             this.id = id;
             Console.WriteLine("Client Created with id:" + id);
-            ply = new Player(new Rectangle(rng.Next(0, 200), rng.Next(0, 200), 50, 50), Assets.circle, Color.Black);
+            ply = new Player(new Rectangle(rng.Next(0, 200), rng.Next(0, 200), 50, 50), (Assets)rng.Next(0,3), new Color(rng.Next(0, 255), rng.Next(0, 255), rng.Next(0, 255)));
 
         }
 

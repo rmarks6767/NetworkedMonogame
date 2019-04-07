@@ -413,7 +413,7 @@ namespace VRChat2
                 }
                 //Clear the current command.
                 command = null;
-                CurrentCommand = command;
+                //CurrentCommand = command;
             }
 
             //client.

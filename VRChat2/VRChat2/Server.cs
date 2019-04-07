@@ -102,7 +102,7 @@ namespace VRChat2
                     allDone.Reset();
                     
                     //Open up the server to accept callbacks using the AcceptCallback function
-                    //Console.WriteLine("Awaiting connection...");
+                    Console.WriteLine("Awaiting connection...");
                     server.BeginAccept(new AsyncCallback(AcceptCallback), server);
 
                    
@@ -114,7 +114,7 @@ namespace VRChat2
             }
             catch (Exception e)
             {
-                //Console.WriteLine("Server Running Error: " + e.Message);
+                Console.WriteLine("Server Running Error: " + e.Message);
             }
         }
 
@@ -142,7 +142,7 @@ namespace VRChat2
 
                     //Increment the global iding system
                     globalNextId++;
-                    //Console.WriteLine("Client {0} connected", clients[clients.Count - 1].ID);
+                    Console.WriteLine("Client {0} connected", clients[clients.Count - 1].ID);
                     
                     //Send commands to all the other clients connected that someone new has connected
                     Send(Command.SendingClientInfo, clients[clients.Count - 1], handler, null);
@@ -163,7 +163,7 @@ namespace VRChat2
             {
                 //If we ever get an error from a client we are going to remove them from the list because 
                 //They are gone
-                //Console.WriteLine("AcceptCallback Error: " + e.Message);
+                Console.WriteLine("AcceptCallback Error: " + e.Message);
                 Client client = clients.Find(c => c.ClientSocket == listener);
                 RemoveClient(client, listener);
             }
@@ -190,7 +190,6 @@ namespace VRChat2
                 {
                     //Add all the new read data to a string
                     state.sb.Append(Encoding.ASCII.GetString(state.buffer, 0, read));
-                    //Console.WriteLine("REEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE");
 
                     //Keep reading until there is no more data
                     handler.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0, new AsyncCallback(ReadCallback), state);
@@ -202,7 +201,7 @@ namespace VRChat2
                     string content = state.sb.ToString();
 
                     //Output what we recieved
-                    //Console.WriteLine(content);
+                    Console.WriteLine(content);
 
                     //Split that output to then update the data we have locally
                     string[] tempCmdArgs = content.Split(',');
@@ -211,7 +210,7 @@ namespace VRChat2
                     //Find the client that has that given id
                     Client client = clients.Find(c => c.ID == int.Parse(tempCmdArgs[1]));
 
-                    //Console.WriteLine("Client Requesting to Move: " + client.ID);
+                    Console.WriteLine("Client Requesting to Move: " + client.ID);
 
                     //Update that player's collision box
                     client.Ply.CollisionBox = new Rectangle(
@@ -220,17 +219,17 @@ namespace VRChat2
                         int.Parse(tempCmdArgs[4]),
                         int.Parse(tempCmdArgs[5]));
 
-                    //Console.WriteLine("{0},{1},{2},{3}", client.Ply.CollisionBox.X, client.Ply.CollisionBox.Y, client.Ply.CollisionBox.Width, client.Ply.CollisionBox.Height);
+                    Console.WriteLine("{0},{1},{2},{3}", client.Ply.CollisionBox.X, client.Ply.CollisionBox.Y, client.Ply.CollisionBox.Width, client.Ply.CollisionBox.Height);
 
                     //send that given data to the clients to update them with the new position
                     Send((Command)cmdHead, client, handler, null);
-                       // Console.WriteLine("Read {0} from the socket", content);
+                        Console.WriteLine("Read {0} from the socket", content);
                         state.sb.Clear();
                 }
             }
             catch(SocketException e)
             {
-               // Console.WriteLine("ReadCallback Error: " + e.Message);
+                Console.WriteLine("ReadCallback Error: " + e.Message);
                 Client client = clients.Find(c => c.ClientSocket == handler);
                 RemoveClient(client, handler);
             }
@@ -245,7 +244,7 @@ namespace VRChat2
         {
             try
             {
-               // Console.WriteLine("Now we're waiting at the Send");
+                Console.WriteLine("Now we're waiting at the Send");
                 if (command == Command.MoveMe)
                 {
                     for (int i = 0; i < clients.Count; i++)
@@ -263,13 +262,14 @@ namespace VRChat2
                 else
                 {
                     byte[] sendData = GetClientDataToSend(command, client, destroy);
+                    Console.WriteLine("GG" + Encoding.ASCII.GetString(sendData));
                     handler.BeginSend(sendData, 0, sendData.Length, SocketFlags.None, new AsyncCallback(SendCallback), handler);
                 }
 
             }
             catch(Exception e)
             {
-                //Console.WriteLine("Sending error: " + e.Message);
+                Console.WriteLine("Sending error: " + e.Message);
                 RemoveClient(client, handler);
             }
         }
@@ -283,18 +283,18 @@ namespace VRChat2
             Socket handler = (Socket)ar.AsyncState;
             try
             {
-                //Console.WriteLine("Now we're waiting at the SendCallback");
+                Console.WriteLine("Now we're waiting at the SendCallback");
 
                 
 
                 int bytesSent = handler.EndSend(ar);
-                //Console.WriteLine("Sent {0} bytes to the client", bytesSent);
+                Console.WriteLine("Sent {0} bytes to the client", bytesSent);
 
                 sendComplete.Set();
             }
             catch(Exception e)
             {
-                //Console.WriteLine("SendCallback Error: " + e.Message);
+                Console.WriteLine("SendCallback Error: " + e.Message);
                 Client client = clients.Find(c => c.ClientSocket == handler);
                 RemoveClient(client, handler);
             }
@@ -308,7 +308,7 @@ namespace VRChat2
         {
             try
             {
-                //Console.WriteLine("Check connection");
+                Console.WriteLine("Check connection");
                 if (client.ClientSocket.Poll(1, SelectMode.SelectRead) && client.ClientSocket.Available == 0)
                 {
                     RemoveClient(client, handler);
@@ -316,7 +316,7 @@ namespace VRChat2
             }
             catch
             {
-                //Console.WriteLine("The client {0} no longer connected", client.ID);
+                Console.WriteLine("The client {0} no longer connected", client.ID);
                 RemoveClient(client, handler);
             }
             
@@ -330,7 +330,7 @@ namespace VRChat2
         {
             try
             {
-                //Console.WriteLine("Removing client with ID: " + client.ID);
+                Console.WriteLine("Removing client with ID: " + client.ID);
                 for (int i = 0; i < clients.Count; i++)
                 {
                     if (clients[i] != client)
@@ -342,7 +342,7 @@ namespace VRChat2
             }
             catch
             {
-                //Console.WriteLine("Removing client with ID: " + client.ID);
+                Console.WriteLine("Removing client with ID: " + client.ID);
                 for (int i = 0; i < clients.Count; i++)
                 {
                     if (clients[i] != client)
@@ -357,7 +357,7 @@ namespace VRChat2
 
         public byte[] GetClientDataToSend(Command command, Client client, Client ToRemove)
         {
-            //Console.WriteLine("Getting the data to send");
+            Console.WriteLine("Getting the data to send");
             string data = "";
 
             switch (command)
@@ -373,7 +373,7 @@ namespace VRChat2
                     data += client.Ply.CollisionBox.Y;
                     data += ",";
                     data += client.ID;
-                    //Console.WriteLine("Move Other ID: " + client.ID);
+                    Console.WriteLine("Move Other ID: " + client.ID);
                     break;
                 case Command.MoveYou: // (Command, X, Y, ID)
                     data += (int)Command.MoveYou;
@@ -383,7 +383,7 @@ namespace VRChat2
                     data += client.Ply.CollisionBox.Y;
                     data += ",";
                     data += client.ID;
-                    //Console.WriteLine("Move You ID: " + client.ID);
+                    Console.WriteLine("Move You ID: " + client.ID);
                     break;
                 case Command.SendingClientInfo: // (Command, X:Y:Sprite:Color:ID, X:Y:Sprite:Color:ID, X:Y:Sprite:Color:ID...)
                     data += (int)Command.SendingClientInfo;
@@ -460,10 +460,10 @@ namespace VRChat2
                     data += (ToRemove.ID);
                     break;
                 default:
-                    //Console.WriteLine("We shouldn't be here");
+                    Console.WriteLine("We shouldn't be here");
                     break;
             }
-            //Console.WriteLine("Sending data: {0}", data);
+            Console.WriteLine("Sending data: {0}", data);
 
             byte[] byteData = Encoding.ASCII.GetBytes(data);
 
